@@ -1,21 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User, UserDocument } from './schemas/user.schema';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name)
-    private userModel: Model<UserDocument>,
-  ) {}
-
-  create(data: Partial<User>) {
-    const user = new this.userModel(data);
-    return user.save();
+  // TODO: Implement with Prisma once the schema is defined
+  async create(): Promise<never> {
+    throw new NotImplementedException('User creation is not implemented yet.');
   }
 
-  findAll() {
-    return this.userModel.find();
+  async findAll(): Promise<never> {
+    throw new NotImplementedException('User listing is not implemented yet.');
   }
 }
