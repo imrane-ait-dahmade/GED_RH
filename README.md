@@ -1,99 +1,209 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# GED RH — Gestion Électronique des Documents (Ressources Humaines)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Application backend de **Gestion Électronique des Documents** pour le domaine **Ressources Humaines**. Elle permet de gérer des documents, candidats, entretiens, formulaires et notifications dans un contexte RH.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Technologies utilisées
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Technologie | Rôle |
+|-------------|------|
+| **Node.js** | Environnement d’exécution JavaScript |
+| **NestJS 11** | Framework backend (API REST) |
+| **TypeScript** | Langage de développement |
+| **Prisma 7** | ORM et accès base de données |
+| **PostgreSQL 16** | Base de données relationnelle |
+| **MinIO** | Stockage d’objets (fichiers / documents) |
+| **Joi** | Validation des variables d’environnement |
+| **Docker & Docker Compose** | Conteneurisation et déploiement |
 
-## Project setup
+### Stack résumée
 
-```bash
-$ npm install
-```
+- **API** : NestJS (Express)
+- **Base de données** : PostgreSQL via Prisma
+- **Stockage fichiers** : MinIO (compatible S3)
+- **Config** : `@nestjs/config` + Joi pour `.env`
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## Frontend (Next.js)
 
-# watch mode
-$ npm run start:dev
+Un frontend Next.js 15 (App Router) + TypeScript strict est fourni dans **`apps/web/`**. Il inclut :
 
-# production mode
-$ npm run start:prod
-```
+- Auth JWT, rôles (Admin RH, RH, Manager), protection des routes
+- Multi-organisation (tenant) via store Zustand + header `X-Organization-Id`
+- Structure modulaire (features), TanStack Query + Zustand, SSR pour offres et formulaires
 
-## Run tests
+**Documentation détaillée** : [Architecture frontend](docs/FRONTEND_ARCHITECTURE.md) (stratégie SSR, state, librairies, plan de sprints, CI/CD).
+
+Pour lancer le frontend :
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cd apps/web
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-## Deployment
+Le frontend écoute par défaut sur `http://localhost:3000`. Si l’API NestJS utilise déjà le port 3000, lancer le frontend sur un autre port : `npm run dev -- -p 3001` (ou définir `PORT=3001`).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Structure du projet
+
+```
+GED_RH/
+├── apps/web/              # Frontend Next.js (voir docs/FRONTEND_ARCHITECTURE.md)
+├── docs/
+│   └── FRONTEND_ARCHITECTURE.md
+├── prisma/
+│   └── schema.prisma      # Schéma BDD (PostgreSQL)
+├── src/
+│   ├── app.module.ts      # Module racine
+│   ├── main.ts            # Point d’entrée
+│   ├── auth/              # Authentification
+│   ├── users/             # Utilisateurs
+│   ├── organizations/     # Organisations
+│   ├── documents/         # GED – documents
+│   ├── candidates/        # Candidats
+│   ├── forms/             # Formulaires
+│   ├── interviews/        # Entretiens
+│   ├── notifications/     # Notifications
+│   └── prisma/            # Service Prisma
+├── docker-compose.yml     # Postgres + MinIO + API
+├── Dockerfile             # Image de l’API
+└── package.json
+```
+
+---
+
+## Fonctionnalités existantes
+
+### En place et utilisables
+
+| Module | État | Détail |
+|--------|------|--------|
+| **API de base** | ✅ | Route `GET /` (message de bienvenue). |
+| **Configuration** | ✅ | Variables d’environnement validées (Joi) : `NODE_ENV`, `PORT`, `DATABASE_URL`, `MINIO_*`. |
+| **Base de données** | ✅ | Connexion PostgreSQL via Prisma, hooks de fermeture propre. |
+| **Infrastructure** | ✅ | Docker Compose : API, PostgreSQL, MinIO. |
+
+### Modules présents (squelette)
+
+Les routes et services existent mais sont encore **vides ou non implémentés** :
+
+| Module | Route | État |
+|--------|--------|------|
+| **Utilisateurs** | `/users` | Service avec `create` et `findAll` → `NotImplementedException`. |
+| **Authentification** | `/auth` | Contrôleur vide. |
+| **Authentification (alt)** | `POST /authentification` | Contrôleur avec une méthode `Login` vide. |
+| **Organisations** | `/organizations` | Contrôleur et service vides. |
+| **Documents** | `/documents` | Contrôleur et service vides. |
+| **Candidats** | `/candidates` | Contrôleur et service vides. |
+| **Formulaires** | `/forms` | Contrôleur et service vides. |
+| **Entretiens** | `/interviews` | Contrôleur et service vides. |
+| **Notifications** | `/notifications` | Contrôleur et service vides. |
+
+### Schéma et données
+
+- **Prisma** : `schema.prisma` configuré pour PostgreSQL, sans modèles pour l’instant.
+- **Users** : Présence d’un schéma Mongoose (`users/schemas/user.schema.ts`) pour un modèle `User` (name, email, password) ; le reste de l’app utilise Prisma/PostgreSQL.
+
+---
+
+## Prérequis
+
+- Node.js 20+
+- npm
+- Docker et Docker Compose (pour l’environnement complet)
+- PostgreSQL 16 (ou via Docker)
+- MinIO (ou via Docker)
+
+---
+
+## Installation et lancement
+
+### 1. Cloner et installer les dépendances
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+git clone <url-du-repo>
+cd GED_RH
+npm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 2. Variables d’environnement
 
-## Resources
+Créer un fichier `.env` à la racine :
 
-Check out a few resources that may come in handy when working with NestJS:
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gedpro
+MINIO_ENDPOINT=localhost:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=gedpro
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 3. Base de données (Prisma)
 
-## Support
+```bash
+npx prisma generate
+npx prisma migrate dev   # quand des modèles existent dans schema.prisma
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 4. Lancer l’API
 
-## Stay in touch
+```bash
+# Mode développement (watch)
+npm run start:dev
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Ou mode normal
+npm run start
+```
 
-## License
+L’API écoute sur `http://localhost:3000` (ou le `PORT` défini).
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-"# GED_RH" 
+### 5. Tout lancer avec Docker
+
+```bash
+docker-compose up -d
+```
+
+Cela démarre :
+
+- **API** : port 3000  
+- **PostgreSQL** : port 5432  
+- **MinIO** : API 9000, console 9001  
+
+---
+
+## Scripts disponibles
+
+| Commande | Description |
+|----------|-------------|
+| `npm run start` | Démarrage standard |
+| `npm run start:dev` | Démarrage en mode watch |
+| `npm run start:prod` | Démarrage production (fichiers compilés) |
+| `npm run build` | Compilation TypeScript |
+| `npm run lint` | ESLint |
+| `npm run format` | Prettier sur `src` et `test` |
+| `npm run test` | Tests unitaires (Jest) |
+| `npm run test:e2e` | Tests E2E |
+| `npm run test:cov` | Couverture de tests |
+
+---
+
+## Prochaines étapes possibles
+
+1. **Prisma** : Définir les modèles (User, Organization, Document, Candidate, Form, Interview, Notification) dans `schema.prisma` et créer les migrations.
+2. **Auth** : Implémenter login (JWT ou sessions) dans `AuthModule` ou `AuthentificationController`.
+3. **Utilisateurs** : Implémenter `UsersService.create` et `findAll` avec Prisma (et aligner ou supprimer le schéma Mongoose si tout passe en Prisma).
+4. **Documents** : Upload / téléchargement / liste des documents avec MinIO.
+5. **Candidats, Formulaires, Entretiens, Notifications** : Implémenter les CRUD et la logique métier selon les besoins RH.
+
+---
+
+## Licence
+
+Projet privé (UNLICENSED).
