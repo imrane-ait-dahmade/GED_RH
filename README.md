@@ -4,6 +4,16 @@ Application backend de **Gestion Électronique des Documents** pour le domaine *
 
 ---
 
+## Démarrer le projet
+
+**Documentation de démarrage** : **[docs/DEMARRAGE_RAPIDE.md](docs/DEMARRAGE_RAPIDE.md)** — étapes pour lancer le backend (API) et le frontend (Next.js), avec ou sans Docker.
+
+En bref :
+- **Backend** : `cd backend` → `.env` (voir `backend/.env.example`) + `npm install` + `npx prisma generate` + `npm run start:dev` (ou `docker-compose up -d` à la racine).
+- **Frontend** : `cd frontend` → `cp .env.example .env` + `npm install` + `npm run dev`.
+
+---
+
 ## Technologies utilisées
 
 | Technologie | Rôle |
@@ -26,26 +36,31 @@ Application backend de **Gestion Électronique des Documents** pour le domaine *
 
 ---
 
-## Frontend (Next.js)
+## Backend et Frontend (deux dossiers séparés)
 
-Un frontend Next.js 15 (App Router) + TypeScript strict est fourni dans **`apps/web/`**. Il inclut :
+Le dépôt est organisé en **deux projets distincts** :
 
-- Auth JWT, rôles (Admin RH, RH, Manager), protection des routes
-- Multi-organisation (tenant) via store Zustand + header `X-Organization-Id`
-- Structure modulaire (features), TanStack Query + Zustand, SSR pour offres et formulaires
+| Dossier | Rôle |
+|---------|------|
+| **`backend/`** | API NestJS (Prisma, PostgreSQL, MinIO). Voir [backend/README.md](backend/README.md). |
+| **`frontend/`** | Application Next.js (App Router, auth, dashboard, modules RH). Voir [frontend/README.md](frontend/README.md). |
 
-**Documentation détaillée** : [Architecture frontend](docs/FRONTEND_ARCHITECTURE.md) (stratégie SSR, state, librairies, plan de sprints, CI/CD).
+### Frontend (Next.js)
+
+Le frontend dans **`frontend/`** inclut : auth JWT, rôles (Admin RH, RH, Manager), multi-organisation (tenant), structure modulaire, TanStack Query + Zustand.
+
+**Documentation détaillée** : [Architecture frontend](docs/FRONTEND_ARCHITECTURE.md).
 
 Pour lancer le frontend :
 
 ```bash
-cd apps/web
+cd frontend
 cp .env.example .env
 npm install
 npm run dev
 ```
 
-Le frontend écoute par défaut sur `http://localhost:3000`. Si l’API NestJS utilise déjà le port 3000, lancer le frontend sur un autre port : `npm run dev -- -p 3001` (ou définir `PORT=3001`).
+Le frontend écoute par défaut sur `http://localhost:3000`. Si l’API utilise déjà le port 3000 : `npm run dev -- -p 3001`.
 
 ---
 
@@ -53,26 +68,21 @@ Le frontend écoute par défaut sur `http://localhost:3000`. Si l’API NestJS u
 
 ```
 GED_RH/
-├── apps/web/              # Frontend Next.js (voir docs/FRONTEND_ARCHITECTURE.md)
+├── backend/               # API NestJS (voir backend/README.md)
+│   ├── src/
+│   ├── prisma/
+│   ├── package.json
+│   ├── Dockerfile
+│   └── .env.example
+├── frontend/              # Application Next.js (voir frontend/README.md)
+│   ├── src/
+│   ├── package.json
+│   └── .env.example
 ├── docs/
+│   ├── DEMARRAGE_RAPIDE.md
 │   └── FRONTEND_ARCHITECTURE.md
-├── prisma/
-│   └── schema.prisma      # Schéma BDD (PostgreSQL)
-├── src/
-│   ├── app.module.ts      # Module racine
-│   ├── main.ts            # Point d’entrée
-│   ├── auth/              # Authentification
-│   ├── users/             # Utilisateurs
-│   ├── organizations/     # Organisations
-│   ├── documents/         # GED – documents
-│   ├── candidates/        # Candidats
-│   ├── forms/             # Formulaires
-│   ├── interviews/        # Entretiens
-│   ├── notifications/     # Notifications
-│   └── prisma/            # Service Prisma
-├── docker-compose.yml     # Postgres + MinIO + API
-├── Dockerfile             # Image de l’API
-└── package.json
+├── .github/workflows/     # CI (frontend)
+└── docker-compose.yml     # Postgres + MinIO + API (build: ./backend)
 ```
 
 ---
@@ -178,19 +188,12 @@ Cela démarre :
 
 ---
 
-## Scripts disponibles
+## Scripts
 
-| Commande | Description |
-|----------|-------------|
-| `npm run start` | Démarrage standard |
-| `npm run start:dev` | Démarrage en mode watch |
-| `npm run start:prod` | Démarrage production (fichiers compilés) |
-| `npm run build` | Compilation TypeScript |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier sur `src` et `test` |
-| `npm run test` | Tests unitaires (Jest) |
-| `npm run test:e2e` | Tests E2E |
-| `npm run test:cov` | Couverture de tests |
+Les commandes s’exécutent **dans le dossier concerné** (`backend/` ou `frontend/`).
+
+**Backend** (dans `backend/`) : `npm run start:dev`, `npm run build`, `npm run test`, etc.  
+**Frontend** (dans `frontend/`) : `npm run dev`, `npm run build`, `npm run lint`, `npm run test`, etc.
 
 ---
 
